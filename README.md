@@ -47,6 +47,9 @@ against executed fills, so results under a zero-fee assumption are reported alon
   per market at 3-second intervals through the full match.
 - Portugal vs. Croatia, 2 July 2026 — both tournament-winner contracts, 920 snapshots
   (degraded collection, ~8% yield due to intermittent network loss).
+- Australia vs. Egypt, 3 July 2026 — both tournament-winner contracts, 1,905 snapshots
+  per market at ~4-second effective intervals through regulation, extra time, and a
+  penalty shootout (clean collection; zero fetch errors).
 
 ## 4. Results
 
@@ -56,12 +59,16 @@ against executed fills, so results under a zero-fee assumption are reported alon
 | Austria (longshot)    | 0.10¢         | 0.05¢             | 0.07¢        | −0.02¢          | 0.00¢ / 0.00¢             | Dead    |
 | Portugal              | 0.10¢         | 0.05¢             | 0.40¢        | −0.35¢          | n/a                       | Dead    |
 | Croatia               | 0.10¢         | 0.05¢             | 0.07¢        | −0.02¢          | n/a                       | Dead    |
+| Egypt (longshot)      | 0.10¢         | 0.05¢             | 0.07¢        | −0.02¢          | 0.00¢ / 0.00¢             | Dead    |
+| Australia (longshot)  | n/a           | n/a               | n/a          | n/a             | n/a                       | No two-sided book |
 
 ## 5. Finding
 
-On liquid tournament-winner markets the quoted spread (~0.10¢) is roughly an order of
-magnitude below the modeled fee, and the spread is tightest exactly where liquidity is
-deepest. The fee term dominates before adverse selection enters.
+Across the sampled markets, three distinct failure regimes emerged: on liquid books
+the fee dominates a spread too thin to clear it; on deep-longshot books no two-sided
+market exists at all; and at discrete resolution events makers withdraw and the price
+jumps, so a resting quote faces adverse selection as absent liquidity rather than
+drift.
 
 Adverse selection, which the model predicted would bind during live play, did not.
 Drift was at most 0.04¢ even at a 60-second horizon, despite meaningful repricing over
@@ -79,6 +86,28 @@ A replication attempt (Portugal–Croatia) was degraded by network loss. Spread 
 were broadly consistent with Spain–Austria; drift metrics were not computable from the
 irregularly sampled data, since the fixed snapshot-count horizon no longer corresponds
 to a fixed time interval.
+
+### 5.1 Behavior at discrete resolution (penalty shootout)
+
+The Australia–Egypt match went to penalties, providing a first observation of these
+markets under a discrete resolution event. Three behaviors appeared in sequence in
+Egypt's book. During the early kicks the two-sided book withdrew entirely (no
+reconstructable quote for ~100 seconds). It then re-formed and froze at a 0.10¢ spread
+through the middle kicks. At resolution, the mid repriced from 0.15¢ to 0.25¢ in a
+single ~4-second sampling interval — a discrete jump equal to twice the capturable
+half-spread, with no intermediate prints.
+
+This confirms the roadmap hypothesis in modified form: under jump conditions, makers
+do not defend by widening — they withdraw, and the price gaps when the book re-forms.
+Adverse selection in this regime manifests as absent liquidity rather than measurable
+drift, which is why aggregate drift statistics (computed over the full match) remain
+near zero. Caveat: with the contract priced one to two ticks above zero, the observed
+jump is a single tick on a quantized ladder; the withdrawal–freeze–gap pattern, not
+its magnitude, is the finding.
+
+Separately, Australia's contract had no two-sided book at any point in the match: the
+bid side was absent in all 1,905 snapshots. For deep-longshot tournament contracts,
+the market-making question is moot — there is no market to make.
 
 ## 6. Limitations
 
