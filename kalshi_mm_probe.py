@@ -58,9 +58,9 @@ import urllib.request
 import urllib.error
 from collections import defaultdict
 
-# ----------------------------------------------------------------------------
+
 # CONFIG  — verify these before a live run.
-# ----------------------------------------------------------------------------
+
 BASE_URL = "https://api.elections.kalshi.com/trade-api/v2"   # production
 # BASE_URL = "https://demo-api.kalshi.co/trade-api/v2"       # demo / paper
 
@@ -81,9 +81,9 @@ DRIFT_HORIZON = 20        # look this many snapshots ahead to measure mid drift
 DEFAULT_OUTFILE = "snapshots.jsonl"
 
 
-# ----------------------------------------------------------------------------
-# HTTP (public endpoints only — no signing)
-# ----------------------------------------------------------------------------
+
+# HTTP 
+
 def _get(path, params=None):
     """GET a public Kalshi endpoint. Returns parsed JSON or raises."""
     url = BASE_URL + path
@@ -173,10 +173,8 @@ def top_of_book(ob):
         "mid": mid, "spread": spread,
     }
 
-
-# ----------------------------------------------------------------------------
 # RECORD
-# ----------------------------------------------------------------------------
+
 def record(tickers, minutes, outfile=DEFAULT_OUTFILE):
     deadline = time.time() + minutes * 60
     n = 0
@@ -199,9 +197,9 @@ def record(tickers, minutes, outfile=DEFAULT_OUTFILE):
     print(f"Done. Wrote {n} snapshots to {outfile}.")
 
 
-# ----------------------------------------------------------------------------
+
 # ANALYZE
-# ----------------------------------------------------------------------------
+
 def _median(xs):
     xs = sorted(xs)
     if not xs:
@@ -239,7 +237,7 @@ def analyze_market(snaps):
     # Adverse selection proxy: how far does the mid move over the horizon you'd
     # be exposed to as a resting quote? Measured as realized mid drift over
     # DRIFT_HORIZON snapshots. This is the cost a maker pays to informed flow.
-    # (We also count tight-inside moments separately, for context.)
+
     drifts = []
     tight_events = 0
     for i, s in enumerate(snaps):
@@ -313,9 +311,9 @@ def _print_report(by_ticker):
     print("=" * 68)
 
 
-# ----------------------------------------------------------------------------
-# SELF-TEST  — offline, no network. Two synthetic books.
-# ----------------------------------------------------------------------------
+
+# SELF-TEST 
+
 def _synthetic():
     """
     Two fake snapshot streams, both with a 6c spread (so both clear the fee).
@@ -353,9 +351,8 @@ def selftest():
     return ok
 
 
-# ----------------------------------------------------------------------------
 # CLI
-# ----------------------------------------------------------------------------
+
 def main():
     ap = argparse.ArgumentParser(description="Kalshi market-making edge probe (read-only).")
     sub = ap.add_subparsers(dest="cmd", required=True)
